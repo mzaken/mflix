@@ -79,9 +79,16 @@ public class CommentDao extends AbstractMFlixDao {
 
         // TODO> Ticket - Update User reviews: implement the functionality that enables adding a new
         // comment.
+
+        if (comment.getId() == null) {
+            throw new IncorrectDaoOperation("no id");
+        }
+
+        commentCollection.insertOne(comment);
+
         // TODO> Ticket - Handling Errors: Implement a try catch block to
         // handle a potential write exception when given a wrong commentId.
-        return null;
+        return comment;
     }
 
     /**
@@ -101,9 +108,16 @@ public class CommentDao extends AbstractMFlixDao {
 
         // TODO> Ticket - Update User reviews: implement the functionality that enables updating an
         // user own comments
+
+        Bson filter = Filters.and(Filters.eq("_id", new ObjectId(commentId)), Filters.eq("email", email));
+        Document update = new Document();
+        update.put("text", text);
+        update.put("date", new Date());
+
+        UpdateResult updateResult = commentCollection.updateOne(filter, new Document("$set", update));
         // TODO> Ticket - Handling Errors: Implement a try catch block to
         // handle a potential write exception when given a wrong commentId.
-        return false;
+        return updateResult.getMatchedCount() > 0 && updateResult.getModifiedCount() > 0;
     }
 
     /**
